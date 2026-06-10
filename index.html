@@ -6,15 +6,9 @@
 <title>doddl — Website UAT</title>
 <style>
   :root {
-    --purple: #3D157D;
-    --navy: #190e3e;
-    --teal: #76BFB2;
-    --grey-bg: #F4F3F8;
-    --grey-border: #d4d0e8;
-    --text: #190e3e;
-    --text-mid: #5f5e5a;
-    --text-light: #9b9994;
-    --white: #ffffff;
+    --purple: #3D157D; --navy: #190e3e; --teal: #76BFB2;
+    --grey-bg: #F4F3F8; --grey-border: #d4d0e8;
+    --text: #190e3e; --text-mid: #5f5e5a; --text-light: #9b9994; --white: #ffffff;
     --green: #3B6D11; --green-bg: #EAF3DE; --green-bd: #97C459;
     --amber: #854F0B; --amber-bg: #FAEEDA; --amber-bd: #EF9F27;
     --red: #A32D2D; --red-bg: #FCEBEB; --red-bd: #F09595;
@@ -23,16 +17,17 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--grey-bg); color: var(--text); font-size: 14px; line-height: 1.5; }
-  .nav { background: var(--purple); padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 52px; position: sticky; top: 0; z-index: 100; }
-  .nav-logo { display: flex; align-items: center; gap: 10px; }
-  .nav-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); }
+  .nav { background: var(--purple); padding: 0 24px; display: flex; align-items: center; height: 52px; position: sticky; top: 0; z-index: 100; gap: 12px; }
+  .nav-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
   .nav-title { font-size: 15px; font-weight: 600; color: #fff; }
   .nav-sub { font-size: 12px; color: rgba(255,255,255,0.6); }
+  .nav-refresh { margin-left: auto; padding: 6px 14px; border-radius: 50px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid rgba(255,255,255,0.4); background: transparent; color: #fff; }
+  .nav-refresh:hover { background: rgba(255,255,255,0.1); }
   .tabs { background: var(--white); border-bottom: 1px solid var(--grey-border); padding: 0 24px; display: flex; }
-  .tab { padding: 12px 18px; font-size: 13px; font-weight: 500; color: var(--text-mid); cursor: pointer; border-bottom: 3px solid transparent; }
+  .tab { padding: 12px 18px; font-size: 13px; font-weight: 500; color: var(--text-mid); cursor: pointer; border-bottom: 3px solid transparent; user-select: none; }
   .tab:hover { color: var(--purple); }
   .tab.active { color: var(--purple); border-bottom-color: var(--teal); }
-  .container { max-width: 900px; margin: 0 auto; padding: 24px 20px; }
+  .container { max-width: 960px; margin: 0 auto; padding: 24px 20px; }
   .view { display: none; }
   .view.active { display: block; }
   .card { background: var(--white); border: 0.5px solid var(--grey-border); border-radius: var(--radius); margin-bottom: 16px; overflow: hidden; }
@@ -40,14 +35,14 @@
   .card-head h2 { font-size: 13px; font-weight: 600; }
   .card-body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
   label { font-size: 12px; font-weight: 500; color: var(--text-mid); display: block; margin-bottom: 4px; }
-  input[type=text], input[type=url], input[type=date], select, textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--grey-border); border-radius: var(--radius-sm); font-size: 13px; color: var(--text); background: var(--white); outline: none; }
+  input[type=text], input[type=url], input[type=date], select, textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--grey-border); border-radius: var(--radius-sm); font-size: 13px; color: var(--text); background: var(--white); outline: none; font-family: inherit; }
   input:focus, select:focus, textarea:focus { border-color: var(--purple); }
   textarea { resize: vertical; min-height: 72px; }
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
   .field { display: flex; flex-direction: column; }
   .pill-group { display: flex; gap: 6px; flex-wrap: wrap; }
-  .pill { padding: 5px 12px; border-radius: 50px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid transparent; opacity: 0.45; transition: all 0.1s; }
+  .pill { padding: 5px 12px; border-radius: 50px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid transparent; opacity: 0.4; transition: opacity 0.1s; user-select: none; }
   .pill.sel { opacity: 1; }
   .pill-critical { background: var(--red-bg); color: var(--red); border-color: var(--red-bd); }
   .pill-major { background: var(--amber-bg); color: var(--amber); border-color: var(--amber-bd); }
@@ -56,14 +51,20 @@
   .pill-pass { background: var(--green-bg); color: var(--green); border-color: var(--green-bd); }
   .pill-partial { background: var(--amber-bg); color: var(--amber); border-color: var(--amber-bd); }
   .pill-fail { background: var(--red-bg); color: var(--red); border-color: var(--red-bd); }
-  .submit-btn { width: 100%; padding: 12px; background: var(--purple); color: #fff; border: none; border-radius: 50px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+  .submit-btn { width: 100%; padding: 12px; background: var(--purple); color: #fff; border: none; border-radius: 50px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 8px; transition: opacity 0.15s; }
   .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-  .sum-card { background: var(--white); border: 0.5px solid var(--grey-border); border-radius: var(--radius); padding: 14px; text-align: center; }
-  .sum-num { font-size: 28px; font-weight: 700; color: var(--purple); }
+  .summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
+  .sum-card { background: var(--white); border: 0.5px solid var(--grey-border); border-radius: var(--radius); padding: 12px 10px; text-align: center; }
+  .sum-num { font-size: 26px; font-weight: 700; color: var(--purple); }
   .sum-lbl { font-size: 11px; color: var(--text-light); margin-top: 2px; }
-  .issue-card { background: var(--white); border: 0.5px solid var(--grey-border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; }
-  .issue-head { padding: 12px 16px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; cursor: pointer; }
+  .log-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+  .log-header h2 { font-size: 15px; font-weight: 600; }
+  .filter-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .filter-btn { padding: 5px 12px; border-radius: 50px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--grey-border); background: var(--white); color: var(--text-mid); }
+  .filter-btn.active { background: var(--purple); color: #fff; border-color: var(--purple); }
+  .issue-card { background: var(--white); border: 0.5px solid var(--grey-border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; transition: opacity 0.2s; }
+  .issue-card.fixed { opacity: 0.6; }
+  .issue-head { padding: 12px 16px; display: flex; align-items: flex-start; gap: 12px; cursor: pointer; }
   .issue-head:hover { background: var(--grey-bg); }
   .issue-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
   .issue-meta { font-size: 12px; color: var(--text-light); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
@@ -72,59 +73,70 @@
   .badge-Major { background: var(--amber-bg); color: var(--amber); }
   .badge-Minor { background: var(--blue-bg); color: var(--blue); }
   .badge-Enhancement { background: var(--green-bg); color: var(--green); }
-  .issue-body { display: none; padding: 0 16px 14px; }
+  .status-badge { display: inline-block; padding: 2px 8px; border-radius: 50px; font-size: 11px; font-weight: 600; }
+  .status-Open { background: var(--red-bg); color: var(--red); }
+  .status-In-Progress { background: var(--amber-bg); color: var(--amber); }
+  .status-Fixed { background: var(--green-bg); color: var(--green); }
+  .status-Wont-Fix { background: var(--grey-bg); color: var(--text-mid); }
+  .issue-body { display: none; padding: 14px 16px; border-top: 0.5px solid var(--grey-bg); }
   .issue-body.open { display: block; }
   .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-  .detail-item .detail-label { font-size: 11px; color: var(--text-light); }
-  .detail-item .detail-val { font-size: 13px; font-weight: 500; }
+  .detail-label { font-size: 11px; color: var(--text-light); margin-bottom: 2px; }
+  .detail-val { font-size: 13px; font-weight: 500; }
   .detail-full { margin-bottom: 10px; font-size: 13px; }
-  .detail-full .detail-label { font-size: 11px; color: var(--text-light); margin-bottom: 2px; }
-  .log-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-  .log-header h2 { font-size: 16px; font-weight: 600; }
-  .filter-row { display: flex; gap: 8px; }
-  .filter-btn { padding: 5px 12px; border-radius: 50px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--grey-border); background: var(--white); color: var(--text-mid); }
-  .filter-btn.active { background: var(--purple); color: #fff; border-color: var(--purple); }
+  .issue-actions { display: flex; gap: 6px; margin-top: 14px; flex-wrap: wrap; border-top: 0.5px solid var(--grey-bg); padding-top: 12px; }
+  .action-btn { padding: 6px 14px; border-radius: 50px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--grey-border); background: var(--white); color: var(--text); transition: all 0.15s; }
+  .action-btn:hover { border-color: var(--purple); color: var(--purple); }
+  .action-btn.green { background: var(--green-bg); color: var(--green); border-color: var(--green-bd); }
+  .action-btn.amber { background: var(--amber-bg); color: var(--amber); border-color: var(--amber-bd); }
+  .action-btn.red { background: var(--red-bg); color: var(--red); border-color: var(--red-bd); }
+  .action-btn.grey { background: var(--grey-bg); color: var(--text-mid); border-color: var(--grey-border); }
+  .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .empty { text-align: center; padding: 60px 20px; color: var(--text-light); font-size: 14px; }
+  .status-bar { background: var(--white); border: 0.5px solid var(--grey-border); border-radius: var(--radius); padding: 11px 16px; margin-bottom: 16px; font-size: 13px; color: var(--text-mid); display: flex; align-items: center; gap: 8px; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
   .toast { position: fixed; bottom: 24px; right: 24px; background: var(--navy); color: #fff; padding: 10px 18px; border-radius: 50px; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; }
   .toast.show { opacity: 1; }
-  .status-bar { background: var(--white); border: 0.5px solid var(--grey-border); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 16px; font-size: 13px; color: var(--text-mid); display: flex; align-items: center; gap: 8px; }
-  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
-  @media (max-width: 600px) { .row2, .row3 { grid-template-columns: 1fr; } .summary-grid { grid-template-columns: repeat(2,1fr); } }
+  .chevron { font-size: 18px; color: var(--text-light); line-height: 1; flex-shrink: 0; transition: transform 0.15s; }
+  .chevron.open { transform: rotate(90deg); }
+  @media (max-width: 600px) { .row2, .row3 { grid-template-columns: 1fr; } .summary-grid { grid-template-columns: repeat(3, 1fr); } }
 </style>
 </head>
 <body>
 
 <nav class="nav">
-  <div class="nav-logo">
-    <div class="nav-dot"></div>
-    <div>
-      <div class="nav-title">doddl UAT</div>
-      <div class="nav-sub">Website review tool</div>
-    </div>
+  <div class="nav-dot"></div>
+  <div>
+    <div class="nav-title">doddl UAT</div>
+    <div class="nav-sub">Website review tool</div>
   </div>
+  <button class="nav-refresh" onclick="loadIssues()">↻ Refresh</button>
 </nav>
 
 <div class="tabs">
-  <div class="tab active" onclick="switchTab('log', this)">Issues log</div>
-  <div class="tab" onclick="switchTab('new', this)">Log new issue</div>
+  <div class="tab active" id="tab-log" onclick="switchTab('log')">Issues log</div>
+  <div class="tab" id="tab-new" onclick="switchTab('new')">Log new issue</div>
 </div>
 
 <div id="view-log" class="view active">
   <div class="container">
-    <div class="status-bar"><div class="status-dot"></div>Connected to Airtable — all submissions go to shared doddl UAT Issues base</div>
-    <div class="summary-grid" id="summary">
-      <div class="sum-card"><div class="sum-num" id="cnt-total">—</div><div class="sum-lbl">Total issues</div></div>
+    <div class="status-bar"><div class="status-dot"></div>Live — all issues sync to Airtable in real time</div>
+    <div class="summary-grid">
+      <div class="sum-card"><div class="sum-num" id="cnt-total">—</div><div class="sum-lbl">Total</div></div>
       <div class="sum-card" style="border-top:3px solid var(--red-bd)"><div class="sum-num" style="color:var(--red)" id="cnt-critical">—</div><div class="sum-lbl">Critical</div></div>
       <div class="sum-card" style="border-top:3px solid var(--amber-bd)"><div class="sum-num" style="color:var(--amber)" id="cnt-major">—</div><div class="sum-lbl">Major</div></div>
-      <div class="sum-card" style="border-top:3px solid var(--blue-bd)"><div class="sum-num" style="color:var(--blue)" id="cnt-minor">—</div><div class="sum-lbl">Minor</div></div>
+      <div class="sum-card" style="border-top:3px solid var(--blue-bd)"><div class="sum-num" style="color:var(--blue)" id="cnt-open">—</div><div class="sum-lbl">Open</div></div>
+      <div class="sum-card" style="border-top:3px solid var(--green-bd)"><div class="sum-num" style="color:var(--green)" id="cnt-fixed">—</div><div class="sum-lbl">Fixed</div></div>
     </div>
     <div class="log-header">
-      <h2 id="log-count">Loading issues...</h2>
+      <h2 id="log-count">Loading...</h2>
       <div class="filter-row">
         <button class="filter-btn active" onclick="filterIssues('all',this)">All</button>
-        <button class="filter-btn" style="color:var(--red)" onclick="filterIssues('Critical',this)">Critical</button>
-        <button class="filter-btn" style="color:var(--amber)" onclick="filterIssues('Major',this)">Major</button>
-        <button class="filter-btn" style="color:var(--blue)" onclick="filterIssues('Minor',this)">Minor</button>
+        <button class="filter-btn" style="color:var(--red)" onclick="filterIssues('Open',this)">Open</button>
+        <button class="filter-btn" style="color:var(--amber)" onclick="filterIssues('In Progress',this)">In Progress</button>
+        <button class="filter-btn" style="color:var(--green)" onclick="filterIssues('Fixed',this)">Fixed</button>
+        <button class="filter-btn" onclick="filterIssues('Critical',this)">Critical</button>
+        <button class="filter-btn" onclick="filterIssues('Major',this)">Major</button>
       </div>
     </div>
     <div id="issues-list"></div>
@@ -167,7 +179,6 @@
         </div>
       </div>
     </div>
-
     <div class="card">
       <div class="card-head"><h2>Issue details</h2></div>
       <div class="card-body">
@@ -175,16 +186,16 @@
           <div class="field"><label>Page</label>
             <select id="f-page">
               <option>Homepage</option><option>Baby led weaning hub</option><option>SEN Journey</option>
-              <option>Mealtime Development Box</option><option>Tips & Advice hub</option><option>Shop by Category</option>
+              <option>Mealtime Development Box</option><option>Tips &amp; Advice hub</option><option>Shop by Category</option>
               <option>Collection — baby cutlery</option><option>Collection — toddler cutlery</option>
-              <option>Collection — plates & bowls</option><option>Collection — kits</option>
+              <option>Collection — plates &amp; bowls</option><option>Collection — kits</option>
               <option>Article page</option><option>Navigation / header</option><option>Footer</option>
               <option>Cart / checkout</option><option>Account pages</option><option>Other</option>
             </select>
           </div>
-          <div class="field"><label>Component</label><input id="f-component" type="text" placeholder="e.g. Stage 0 panel, hero CTA"></div>
+          <div class="field"><label>Component / section</label><input id="f-component" type="text" placeholder="e.g. Stage 0 panel, hero CTA"></div>
         </div>
-        <div class="field"><label>URL</label><input id="f-url" type="url" placeholder="https://doddl-ltd.myshopify.com/..."></div>
+        <div class="field"><label>Exact URL</label><input id="f-url" type="url" placeholder="https://doddl-ltd.myshopify.com/..."></div>
         <div class="field"><label>Issue title</label><input id="f-title" type="text" placeholder="Short description of the issue"></div>
         <div class="field"><label>Severity</label>
           <div class="pill-group" id="severity-group">
@@ -197,7 +208,7 @@
         <div class="field"><label>Steps to reproduce</label><textarea id="f-steps" placeholder="1. Go to...&#10;2. Click...&#10;3. Observe..."></textarea></div>
         <div class="field"><label>Expected behaviour</label><textarea id="f-expected" placeholder="What should happen"></textarea></div>
         <div class="field"><label>Actual behaviour</label><textarea id="f-actual" placeholder="What actually happens"></textarea></div>
-        <div class="field"><label>Console errors</label><textarea id="f-console" placeholder="Paste any browser console errors" style="font-family:monospace;font-size:12px;min-height:50px"></textarea></div>
+        <div class="field"><label>Console errors (if any)</label><textarea id="f-console" placeholder="Paste any browser console errors" style="font-family:monospace;font-size:12px;min-height:50px"></textarea></div>
         <div class="field"><label>Page status</label>
           <div class="pill-group" id="status-group">
             <span class="pill pill-pass" onclick="selectPill(this,'status-group')">✓ Ready to launch</span>
@@ -205,10 +216,9 @@
             <span class="pill pill-fail" onclick="selectPill(this,'status-group')">✗ Blocked</span>
           </div>
         </div>
-        <div class="field"><label>Notes</label><textarea id="f-notes" placeholder="Anything else the developer should know..."></textarea></div>
+        <div class="field"><label>Additional notes</label><textarea id="f-notes" placeholder="Anything else the developer should know..."></textarea></div>
       </div>
     </div>
-
     <button class="submit-btn" id="submit-btn" onclick="submitIssue()">Save issue to Airtable</button>
   </div>
 </div>
@@ -217,151 +227,194 @@
 
 <script>
 const AT_TOKEN = 'patR3cW9LDMX6mkgv.01c22e01bbf9e0246d7692b85b1b1428f35c5d0331763e8842eb179122fb477f';
-const AT_BASE = 'appHuRAABHQOsMYkl';
+const AT_BASE  = 'appHuRAABHQOsMYkl';
 const AT_TABLE = 'tbl6Sv48uR795Atl2';
-const AT_URL = `https://api.airtable.com/v0/${AT_BASE}/${AT_TABLE}`;
-const HEADERS = { 'Authorization': `Bearer ${AT_TOKEN}`, 'Content-Type': 'application/json' };
+const AT_URL   = 'https://api.airtable.com/v0/' + AT_BASE + '/' + AT_TABLE;
+const HEADERS  = { 'Authorization': 'Bearer ' + AT_TOKEN, 'Content-Type': 'application/json' };
 
-let allIssues = [];
-let currentFilter = 'all';
+var allIssues = [];
+var currentFilter = 'all';
 
 function toast(msg, err) {
-  const t = document.getElementById('toast');
+  var t = document.getElementById('toast');
   t.textContent = msg;
   t.style.background = err ? '#A32D2D' : '#190e3e';
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
+  setTimeout(function() { t.classList.remove('show'); }, 3000);
 }
 
-function switchTab(tab, el) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  el.classList.add('active');
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
+  document.getElementById('tab-' + tab).classList.add('active');
   document.getElementById('view-' + tab).classList.add('active');
   if (tab === 'log') loadIssues();
 }
 
 function selectPill(el, groupId) {
-  document.querySelectorAll('#' + groupId + ' .pill').forEach(p => p.classList.remove('sel'));
+  document.querySelectorAll('#' + groupId + ' .pill').forEach(function(p) { p.classList.remove('sel'); });
   el.classList.add('sel');
 }
 
 function getSel(groupId) {
-  const sel = document.querySelector('#' + groupId + ' .pill.sel');
-  return sel ? sel.textContent.replace(/[🔴🟠🔵🟢✓⚠✗]\s*/g,'').trim() : '';
+  var sel = document.querySelector('#' + groupId + ' .pill.sel');
+  return sel ? sel.textContent.replace(/[\u{1F534}\u{1F7E0}\u{1F535}\u{1F7E2}\u26A0\u2713\u2717]\s*/gu, '').trim() : '';
 }
 
-async function loadIssues() {
+function loadIssues() {
   document.getElementById('log-count').textContent = 'Loading...';
   document.getElementById('issues-list').innerHTML = '';
-  try {
-    const res = await fetch(AT_URL + '?sort[0][field]=Title&sort[0][direction]=desc', { headers: HEADERS });
-    const data = await res.json();
-    allIssues = data.records || [];
-    renderIssues();
-  } catch(e) {
-    document.getElementById('log-count').textContent = 'Error loading issues';
-    toast('Failed to load from Airtable', true);
-  }
+  fetch(AT_URL + '?sort[0][field]=Date&sort[0][direction]=desc', { headers: HEADERS })
+    .then(function(r) { return r.json(); })
+    .then(function(data) { allIssues = data.records || []; renderIssues(); })
+    .catch(function() { toast('Failed to load — check token', true); document.getElementById('log-count').textContent = 'Connection error'; });
 }
 
 function renderIssues() {
-  const filtered = currentFilter === 'all' ? allIssues : allIssues.filter(r => r.fields.Severity === currentFilter);
-  const counts = { Critical:0, Major:0, Minor:0, Enhancement:0 };
-  allIssues.forEach(r => { const s = r.fields.Severity; if(counts[s]!==undefined) counts[s]++; });
+  var filtered = allIssues;
+  if (currentFilter === 'Open' || currentFilter === 'In Progress' || currentFilter === 'Fixed') {
+    filtered = allIssues.filter(function(r) { return r.fields.Status === currentFilter; });
+  } else if (currentFilter === 'Critical' || currentFilter === 'Major' || currentFilter === 'Minor' || currentFilter === 'Enhancement') {
+    filtered = allIssues.filter(function(r) { return r.fields.Severity === currentFilter; });
+  }
+
+  var counts = { Critical:0, Major:0, Open:0, Fixed:0 };
+  allIssues.forEach(function(r) {
+    var s = r.fields.Severity; if (counts[s] !== undefined) counts[s]++;
+    var st = r.fields.Status; if (st === 'Open' || st === 'In Progress') counts.Open++; else if (st === 'Fixed') counts.Fixed++;
+  });
   document.getElementById('cnt-total').textContent = allIssues.length;
   document.getElementById('cnt-critical').textContent = counts.Critical;
   document.getElementById('cnt-major').textContent = counts.Major;
-  document.getElementById('cnt-minor').textContent = counts.Minor;
-  document.getElementById('log-count').textContent = currentFilter === 'all' ? `All issues (${allIssues.length})` : `${currentFilter} (${filtered.length})`;
+  document.getElementById('cnt-open').textContent = counts.Open;
+  document.getElementById('cnt-fixed').textContent = counts.Fixed;
+  document.getElementById('log-count').textContent = currentFilter === 'all' ? 'All issues (' + allIssues.length + ')' : currentFilter + ' (' + filtered.length + ')';
 
-  const list = document.getElementById('issues-list');
-  if (!filtered.length) { list.innerHTML = '<div class="empty">No issues logged yet.</div>'; return; }
+  var list = document.getElementById('issues-list');
+  if (!filtered.length) { list.innerHTML = '<div class="empty">No issues found.</div>'; return; }
 
-  list.innerHTML = filtered.map(r => {
-    const f = r.fields;
-    const sev = f.Severity || 'Minor';
-    return `<div class="issue-card">
-      <div class="issue-head" onclick="this.nextSibling.classList.toggle('open')">
-        <div style="flex:1">
-          <div class="issue-title">${f.Title || 'Untitled'}</div>
-          <div class="issue-meta">
-            <span class="badge badge-${sev}">${sev}</span>
-            ${f.Page ? `<span>${f.Page}</span>` : ''}
-            ${f.Component ? `<span>· ${f.Component}</span>` : ''}
-            ${f.Device ? `<span>· ${f.Device}</span>` : ''}
-            ${f.Market ? `<span>· ${f.Market}</span>` : ''}
-            ${f.Tester ? `<span>· ${f.Tester}</span>` : ''}
-          </div>
-        </div>
-        <span style="font-size:18px;color:var(--text-light);line-height:1">›</span>
-      </div>
-      <div class="issue-body">
-        <div class="detail-grid">
-          ${f.URL ? `<div class="detail-item"><div class="detail-label">URL</div><div class="detail-val" style="font-size:11px;word-break:break-all">${f.URL}</div></div>` : ''}
-          ${f['Page Status'] ? `<div class="detail-item"><div class="detail-label">Page status</div><div class="detail-val">${f['Page Status']}</div></div>` : ''}
-          ${f.Viewport ? `<div class="detail-item"><div class="detail-label">Viewport</div><div class="detail-val">${f.Viewport}</div></div>` : ''}
-          ${f.Status ? `<div class="detail-item"><div class="detail-label">Status</div><div class="detail-val">${f.Status}</div></div>` : ''}
-        </div>
-        ${f['Steps to Reproduce'] ? `<div class="detail-full"><div class="detail-label">Steps to reproduce</div><div style="white-space:pre-line;margin-top:3px">${f['Steps to Reproduce']}</div></div>` : ''}
-        ${f.Expected ? `<div class="detail-full"><div class="detail-label">Expected</div><div style="margin-top:3px">${f.Expected}</div></div>` : ''}
-        ${f.Actual ? `<div class="detail-full"><div class="detail-label">Actual</div><div style="margin-top:3px">${f.Actual}</div></div>` : ''}
-        ${f['Console Errors'] ? `<div class="detail-full"><div class="detail-label">Console errors</div><pre style="font-size:11px;background:var(--grey-bg);padding:8px;border-radius:6px;margin-top:3px;overflow-x:auto;white-space:pre-wrap">${f['Console Errors']}</pre></div>` : ''}
-        ${f.Notes ? `<div class="detail-full"><div class="detail-label">Notes</div><div style="margin-top:3px">${f.Notes}</div></div>` : ''}
-      </div>
-    </div>`;
+  list.innerHTML = filtered.map(function(r) {
+    var f = r.fields;
+    var sev = f.Severity || 'Minor';
+    var st = f.Status || 'Open';
+    var stClass = st.replace(/ /g, '-');
+    var isFixed = st === 'Fixed' || st === "Won't Fix";
+    return '<div class="issue-card' + (isFixed ? ' fixed' : '') + '" id="card-' + r.id + '">' +
+      '<div class="issue-head" onclick="toggleIssue(\'' + r.id + '\')">' +
+        '<div style="flex:1">' +
+          '<div class="issue-title">' + escHtml(f.Title || 'Untitled') + '</div>' +
+          '<div class="issue-meta">' +
+            '<span class="badge badge-' + sev + '">' + sev + '</span>' +
+            '<span class="status-badge status-' + stClass + '">' + st + '</span>' +
+            (f.Page ? '<span>' + f.Page + '</span>' : '') +
+            (f.Component ? '<span>· ' + f.Component + '</span>' : '') +
+            (f.Device ? '<span>· ' + f.Device + '</span>' : '') +
+            (f.Tester ? '<span>· ' + f.Tester + '</span>' : '') +
+          '</div>' +
+        '</div>' +
+        '<span class="chevron" id="chev-' + r.id + '">›</span>' +
+      '</div>' +
+      '<div class="issue-body" id="body-' + r.id + '">' +
+        '<div class="detail-grid">' +
+          (f.URL ? '<div><div class="detail-label">URL</div><div class="detail-val" style="font-size:11px;word-break:break-all">' + escHtml(f.URL) + '</div></div>' : '') +
+          (f.Market ? '<div><div class="detail-label">Market</div><div class="detail-val">' + f.Market + '</div></div>' : '') +
+          (f.Viewport ? '<div><div class="detail-label">Viewport</div><div class="detail-val">' + f.Viewport + '</div></div>' : '') +
+          (f['Page Status'] ? '<div><div class="detail-label">Page status</div><div class="detail-val">' + f['Page Status'] + '</div></div>' : '') +
+        '</div>' +
+        (f['Steps to Reproduce'] ? '<div class="detail-full"><div class="detail-label">Steps to reproduce</div><div style="white-space:pre-line;margin-top:3px">' + escHtml(f['Steps to Reproduce']) + '</div></div>' : '') +
+        (f.Expected ? '<div class="detail-full"><div class="detail-label">Expected</div><div style="margin-top:3px">' + escHtml(f.Expected) + '</div></div>' : '') +
+        (f.Actual ? '<div class="detail-full"><div class="detail-label">Actual</div><div style="margin-top:3px">' + escHtml(f.Actual) + '</div></div>' : '') +
+        (f['Console Errors'] ? '<div class="detail-full"><div class="detail-label">Console errors</div><pre style="font-size:11px;background:var(--grey-bg);padding:8px;border-radius:6px;margin-top:3px;overflow-x:auto;white-space:pre-wrap">' + escHtml(f['Console Errors']) + '</pre></div>' : '') +
+        (f.Notes ? '<div class="detail-full"><div class="detail-label">Notes</div><div style="margin-top:3px">' + escHtml(f.Notes) + '</div></div>' : '') +
+        '<div class="issue-actions">' +
+          '<button class="action-btn green" onclick="updateStatus(\'' + r.id + '\',\'Fixed\')">✓ Mark fixed</button>' +
+          '<button class="action-btn amber" onclick="updateStatus(\'' + r.id + '\',\'In Progress\')">→ In progress</button>' +
+          '<button class="action-btn" onclick="updateStatus(\'' + r.id + '\',\'Open\')">↺ Reopen</button>' +
+          '<button class="action-btn grey" onclick="updateStatus(\'' + r.id + '\',\'Won\'t Fix\')">✕ Won\'t fix</button>' +
+          '<button class="action-btn red" onclick="deleteIssue(\'' + r.id + '\')" style="margin-left:auto">🗑 Delete</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
   }).join('');
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function toggleIssue(id) {
+  var body = document.getElementById('body-' + id);
+  var chev = document.getElementById('chev-' + id);
+  if (body) { body.classList.toggle('open'); chev.classList.toggle('open'); }
 }
 
 function filterIssues(filter, btn) {
   currentFilter = filter;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
   btn.classList.add('active');
   renderIssues();
 }
 
-async function submitIssue() {
-  const title = document.getElementById('f-title').value.trim();
-  if (!title) { toast('Please add an issue title', true); return; }
-  const btn = document.getElementById('submit-btn');
+function updateStatus(id, status) {
+  var btn = event.target;
   btn.disabled = true;
-  btn.textContent = 'Saving...';
-  const fields = {
-    Title: title,
-    Tester: document.getElementById('f-name').value.trim() || undefined,
-    Market: document.getElementById('f-market').value,
-    Device: document.getElementById('f-device').value,
-    Viewport: document.getElementById('f-viewport').value,
-    Page: document.getElementById('f-page').value,
-    Component: document.getElementById('f-component').value.trim() || undefined,
-    URL: document.getElementById('f-url').value.trim() || undefined,
-    Severity: getSel('severity-group') || 'Minor',
-    'Steps to Reproduce': document.getElementById('f-steps').value.trim() || undefined,
-    Expected: document.getElementById('f-expected').value.trim() || undefined,
-    Actual: document.getElementById('f-actual').value.trim() || undefined,
-    'Console Errors': document.getElementById('f-console').value.trim() || undefined,
-    Notes: document.getElementById('f-notes').value.trim() || undefined,
-    'Page Status': getSel('status-group') || undefined,
-    Status: 'Open'
-  };
-  Object.keys(fields).forEach(k => fields[k] === undefined && delete fields[k]);
-  try {
-    const res = await fetch(AT_URL, { method: 'POST', headers: HEADERS, body: JSON.stringify({ records: [{ fields }] }) });
-    if (!res.ok) throw new Error(await res.text());
-    toast('Issue saved to Airtable ✓');
-    resetForm();
-    btn.disabled = false;
-    btn.textContent = 'Save issue to Airtable';
-  } catch(e) {
-    toast('Failed to save — check connection', true);
-    btn.disabled = false;
-    btn.textContent = 'Save issue to Airtable';
-  }
+  fetch(AT_URL + '/' + id, {
+    method: 'PATCH',
+    headers: HEADERS,
+    body: JSON.stringify({ fields: { Status: status } })
+  })
+  .then(function(r) { if (!r.ok) throw new Error(); return r.json(); })
+  .then(function(data) {
+    var rec = allIssues.find(function(r) { return r.id === id; });
+    if (rec) rec.fields.Status = status;
+    toast('Status updated to ' + status + ' ✓');
+    renderIssues();
+  })
+  .catch(function() { toast('Failed to update status', true); btn.disabled = false; });
+}
+
+function deleteIssue(id) {
+  if (!confirm('Delete this issue? This cannot be undone.')) return;
+  fetch(AT_URL + '/' + id, { method: 'DELETE', headers: HEADERS })
+  .then(function(r) { if (!r.ok) throw new Error(); return r.json(); })
+  .then(function() {
+    allIssues = allIssues.filter(function(r) { return r.id !== id; });
+    toast('Issue deleted');
+    renderIssues();
+  })
+  .catch(function() { toast('Failed to delete', true); });
+}
+
+function submitIssue() {
+  var title = document.getElementById('f-title').value.trim();
+  if (!title) { toast('Please add an issue title', true); return; }
+  var btn = document.getElementById('submit-btn');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  var fields = { Title: title, Status: 'Open' };
+  var n = document.getElementById('f-name').value.trim(); if (n) fields.Tester = n;
+  var d = document.getElementById('f-date').value; if (d) fields.Date = d;
+  fields.Market = document.getElementById('f-market').value;
+  fields.Device = document.getElementById('f-device').value;
+  fields.Viewport = document.getElementById('f-viewport').value;
+  fields.Page = document.getElementById('f-page').value;
+  var c = document.getElementById('f-component').value.trim(); if (c) fields.Component = c;
+  var u = document.getElementById('f-url').value.trim(); if (u) fields.URL = u;
+  var sev = getSel('severity-group'); if (sev) fields.Severity = sev;
+  var steps = document.getElementById('f-steps').value.trim(); if (steps) fields['Steps to Reproduce'] = steps;
+  var exp = document.getElementById('f-expected').value.trim(); if (exp) fields.Expected = exp;
+  var act = document.getElementById('f-actual').value.trim(); if (act) fields.Actual = act;
+  var con = document.getElementById('f-console').value.trim(); if (con) fields['Console Errors'] = con;
+  var notes = document.getElementById('f-notes').value.trim(); if (notes) fields.Notes = notes;
+  var stat = getSel('status-group'); if (stat) fields['Page Status'] = stat;
+  fetch(AT_URL, { method: 'POST', headers: HEADERS, body: JSON.stringify({ records: [{ fields: fields }] }) })
+  .then(function(r) { if (!r.ok) return r.text().then(function(t) { throw new Error(t); }); return r.json(); })
+  .then(function() { toast('Issue saved ✓'); resetForm(); btn.disabled = false; btn.textContent = 'Save issue to Airtable'; })
+  .catch(function() { toast('Failed to save', true); btn.disabled = false; btn.textContent = 'Save issue to Airtable'; });
 }
 
 function resetForm() {
-  ['f-title','f-component','f-url','f-steps','f-expected','f-actual','f-console','f-notes','f-name'].forEach(id => document.getElementById(id).value = '');
-  document.querySelectorAll('.pill.sel').forEach(p => p.classList.remove('sel'));
+  ['f-title','f-component','f-url','f-steps','f-expected','f-actual','f-console','f-notes','f-name'].forEach(function(id) { document.getElementById(id).value = ''; });
+  document.querySelectorAll('.pill.sel').forEach(function(p) { p.classList.remove('sel'); });
   document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
 }
 
