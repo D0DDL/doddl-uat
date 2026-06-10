@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>doddl — Website UAT</title>
+<style>
+  :root {
+    --purple: #3D157D;
+    --navy: #190e3e;
+    --teal: #76BFB2;
+    --grey-bg: #F4F3F8;
+    --grey-mid: #e5e2f0;
+    --grey-border: #d4d0e8;
+    --text: #190e3e;
+    --text-mid: #5f5e5a;
+    --text-light: #9b9994;
+    --white: #ffffff;
+    --green: #3B6D11;
+    --green-bg: #EAF3DE;
+    --green-bd: #97C459;
+    --amber: #854F0B;
+    --amber-bg: #FAEEDA;
+    --amber-bd: #EF9F27;
+    --red: #A32D2D;
+    --red-bg: #FCEBEB;
+    --red-bd: #F09595;
+    --blue: #185FA5;
+    --blue-bg: #E6F1FB;
+    --blue-bd: #85B7EB;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--grey-bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+  
+  /* NAV */
+  .nav { background: var(--purple); padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 52px; position: sticky; top: 0; z-index: 100; }
+  .nav-logo { display: flex; align-items: center; gap: 10px; }
+  .nav-logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); }
+  .nav-title { font-size: 15px; font-weight: 600; color: #fff; }
+  .nav-sub { font-size: 12px; color: rgba(255,255,255,0.6); }
+  .nav-actions { display: flex; gap: 8px; }
+  .nav-btn { padding: 6px 14px; border-radius: 50px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; }
+  .nav-btn-primary { background: var(--teal); color: var(--navy); }
+  .nav-btn-ghost { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+
+  /* TABS */
+  .tabs { background: var(--white); border-bottom: 1px solid var(--grey-border); padding: 0 24px; display: flex; gap: 0; }
+  .tab { padding: 12px 18px; font-size: 13px; font-weight: 500; color: var(--text-mid); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.15s; }
+  .tab:hover { color: var(--purple); }
+  .tab.active { color: var(--purple); border-bottom-color: var(--teal); }
+
+  /* LAYOUT */
+  .container { max-width: 900px; margin: 0 auto; padding: 24px 20px; }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* CARDS */
+  .card { background: var(--white); border: 0.5px solid var(--grey-border); border-radius: var(--radius); margin-bottom: 16px; overflow: hidden; }
+  .card-head { padding: 12px 16px; background: var(--grey-bg); border-bottom: 0.5px solid var(--grey-border); display: flex; align-items: center; justify-content: space-between; }
+  .card-head h2 { font-size: 13px; font-weight: 600; color: var(--text); }
+  .card-body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+  /* FORM ELEMENTS */
+  label { font-size: 12px; font-weight: 500; color: var(--text-mid); display: block; margin-bottom: 4px; }
+  input[type=text], input[type=url], input[type=email], input[type=date], select, textarea {
+    width: 100%; padding: 8px 12px; border: 1px solid var(--grey-border); border-radius: var(--radius-sm);
+    font-size: 13px; color: var(--text); background: var(--white); outline: none;
+    transition: border-color 0.15s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--purple); }
+  textarea { resize: vertical; min-height: 72px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .field { display: flex; flex-direction: column; }
+
+  /* SEVERITY / STATUS PILLS */
+  .pill-group { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pill { padding: 5px 12px; border-radius: 50px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid transparent; transition: all 0.1s; opacity: 0.5; }
+  .pill.sel { opacity: 1; }
+  .pill-critical { background: var(--red-bg); color: var(--red); border-color: var(--red-bd); }
+  .pill-major { background: var(--amber-bg); color: var(--amber); border-color: var(--amber-bd); }
+  .pill-minor { background: var(--blue-bg); color: var(--blue); border-color: var(--blue-bd); }
+  .pill-enhancement { background: var(--green-bg); color: var(--green); border-color: var(--green-bd); }
+  .pill-pass { background: var(--green-bg); color: var(--green); border-color: var(--green-bd); }
+  .pill-partial { background: var(--amber-bg); color: var(--amber); border-color: var(--amber-bd); }
+  .pill-fail { background: var(--red-bg); color: var(--red); border-color: var(--red-bd); }
+  .pill-na { background: var(--grey-bg); color: var(--text-mid); border-color: var(--grey-border); }
+
+  /* CHECKLIST */
+  .checklist { display: flex; flex-direction: column; gap: 0; }
+  .check-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 0.5px solid var(--grey-bg); }
+  .check-item:last-child { border-bottom: none; }
+  .check-label { font-size: 13px; color: var(--text); flex: 1; line-height: 1.4; }
+  .check-pills { display: flex; gap: 4px; flex-shrink: 0; }
+  .check-pill { padding: 3px 9px; border-radius: 50px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid transparent; opacity: 0.45; transition: opacity 0.1s; }
+  .check-pill.sel { opacity: 1; }
+
+  /* SCREENSHOT UPLOAD */
+  .upload-area { border: 1.5px dashed var(--grey-border); border-radius: var(--radius); padding: 20px; text-align: center; cursor: pointer; transition: border-color 0.15s; position: relative; }
+  .upload-area:hover { border-color: var(--purple); }
+  .upload-area input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .upload-icon { font-size: 24px; margin-bottom: 6px; color: var(--text-light); }
+  .upload-text { font-size: 13px; color: var(--text-mid); }
+  .upload-note { font-size: 11px; color: var(--text-light); margin-top: 3px; }
+  .preview-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .preview-img { width: 80px; height: 60px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--grey-border); cursor: pointer; }
+
+  /* SUBMIT BTN */
+  .submit-btn { width: 100%; padding: 12px; background: var(--purple); color: #fff; border: none; border-radius: 50px; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
+  .submit-btn:hover { opacity: 0.9; }
+
+  /* ISSUES LOG */
+  .log-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .log-header h2 { font-size: 16px; font-weight: 600; color: var(--text); }
+  .log-filters { display: flex; gap: 8px; }
+  .filter-btn { padding: 5px 12px; border-radius: 50px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--grey-border); background: var(--white); color: var(--text-mid); }
+  .filter-btn.active { background: var(--purple); color: #fff; border-color: var(--purple); }
+  .issue-card { background: var(--white); border: 0.5px solid var(--grey-border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; }
+  .issue-head { padding: 12px 16px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; cursor: pointer; }
+  .issue-head:hover { background: var(--grey-bg); }
+  .issue-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .issue-meta { font-size: 12px; color: var(--text-light); display: flex; gap: 10px; flex-wrap: wrap; }
+  .issue-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .issue-del { padding: 4px 10px; border-radius: 50px; font-size: 11px; cursor: pointer; border: 1px solid var(--red-bd); background: var(--red-bg); color: var(--red); }
+  .issue-body { padding: 0 16px 14px; display: none; }
+  .issue-body.open { display: block; }
+  .issue-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  .detail-item { font-size: 12px; }
+  .detail-label { color: var(--text-light); margin-bottom: 2px; }
+  .detail-val { color: var(--text); font-weight: 500; }
+  .detail-full { font-size: 12px; margin-bottom: 10px; }
+
+  /* BADGE */
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 50px; font-size: 11px; font-weight: 600; }
+  .badge-critical { background: var(--red-bg); color: var(--red); }
+  .badge-major { background: var(--amber-bg); color: var(--amber); }
+  .badge-minor { background: var(--blue-bg); color: var(--blue); }
+  .badge-enhancement { background: var(--green-bg); color: var(--green); }
+
+  /* SUMMARY */
+  .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .sum-card { background: var(--white); border: 0.5px solid var(--grey-border); border-radius: var(--radius); padding: 14px; text-align: center; }
+  .sum-num { font-size: 28px; font-weight: 700; color: var(--purple); }
+  .sum-lbl { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--navy); color: #fff; padding: 10px 18px; border-radius: 50px; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; }
+  .toast.show { opacity: 1; }
+
+  /* EMPTY STATE */
+  .empty { text-align: center; padding: 60px 20px; color: var(--text-light); }
+  .empty-icon { font-size: 40px; margin-bottom: 10px; }
+  .empty p { font-size: 14px; }
+
+  /* EXPORT */
+  .export-bar { background: var(--white); border: 0.5px solid var(--grey-border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .export-bar p { font-size: 13px; color: var(--text-mid); }
+  .export-btns { display: flex; gap: 8px; }
+  .export-btn-sm { padding: 7px 14px; border-radius: 50px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--grey-border); background: var(--white); color: var(--text); }
+  .export-btn-sm.primary { background: var(--purple); color: #fff; border-color: var(--purple); }
+
+  @media (max-width: 600px) {
+    .row2, .row3 { grid-template-columns: 1fr; }
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    .issue-detail { grid-template-columns: 1fr; }
+    .check-pills { flex-wrap: wrap; }
+    .check-pill { font-size: 10px; padding: 2px 7px; }
+  }
+
+  @media print {
+    .nav, .tabs, .nav-actions, .submit-btn, .issue-del, .export-bar { display: none !important; }
+    .issue-body { display: block !important; }
+    body { background: white; }
+    .card, .issue-card { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">
+    <div class="nav-logo-dot"></div>
+    <div>
+      <div class="nav-title">doddl UAT</div>
+      <div class="nav-sub">Website review tool</div>
+    </div>
+  </div>
+  <div class="nav-actions">
+    <button class="nav-btn nav-btn-ghost" onclick="exportCSV()">Export CSV</button>
+    <button class="nav-btn nav-btn-primary" onclick="window.print()">Print report</button>
+  </div>
+</nav>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('log')">Issues log</div>
+  <div class="tab" onclick="switchTab('new')">Log new issue</div>
+  <div class="tab" onclick="switchTab('checklist')">Page checklist</div>
+</div>
+
+<!-- ISSUES LOG -->
+<div id="view-log" class="view active">
+  <div class="container">
+    <div class="summary-grid" id="summary"></div>
+    <div class="export-bar">
+      <p>Share this file with your team — all issues are saved locally in this browser. To hand off, export CSV or print.</p>
+      <div class="export-btns">
+        <button class="export-btn-sm" onclick="clearAll()">Clear all</button>
+        <button class="export-btn-sm primary" onclick="exportCSV()">Download CSV</button>
+      </div>
+    </div>
+    <div class="log-header">
+      <h2 id="log-count">All issues</h2>
+      <div class="log-filters">
+        <button class="filter-btn active" onclick="filterIssues('all', this)">All</button>
+        <button class="filter-btn" onclick="filterIssues('Critical', this)" style="color:var(--red)">Critical</button>
+        <button class="filter-btn" onclick="filterIssues('Major', this)" style="color:var(--amber)">Major</button>
+        <button class="filter-btn" onclick="filterIssues('Minor', this)" style="color:var(--blue)">Minor</button>
+      </div>
+    </div>
+    <div id="issues-list"></div>
+  </div>
+</div>
+
+<!-- NEW ISSUE FORM -->
+<div id="view-new" class="view">
+  <div class="container">
+
+    <div class="card">
+      <div class="card-head"><h2>Tester details</h2></div>
+      <div class="card-body">
+        <div class="row3">
+          <div class="field"><label>Your name</label><input id="f-name" type="text" placeholder="Name"></div>
+          <div class="field"><label>Date</label><input id="f-date" type="date"></div>
+          <div class="field"><label>Market</label>
+            <select id="f-market">
+              <option>UK — doddl.com (en-GB)</option>
+              <option>US — doddl.com/en-us</option>
+              <option>DE — doddlbaby.de</option>
+            </select>
+          </div>
+        </div>
+        <div class="row3">
+          <div class="field"><label>Device</label>
+            <select id="f-device">
+              <option>Desktop — Chrome</option>
+              <option>Desktop — Safari</option>
+              <option>Desktop — Firefox</option>
+              <option>iPhone — Safari</option>
+              <option>iPhone — Chrome</option>
+              <option>Android — Chrome</option>
+              <option>iPad</option>
+            </select>
+          </div>
+          <div class="field"><label>Viewport</label>
+            <select id="f-viewport">
+              <option>Desktop (1280px+)</option>
+              <option>Tablet (768–1279px)</option>
+              <option>Mobile (375–767px)</option>
+            </select>
+          </div>
+          <div class="field"><label>Theme</label>
+            <select id="f-theme">
+              <option>Dev — #186189316392</option>
+              <option>Live published theme</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Issue details</h2></div>
+      <div class="card-body">
+        <div class="row2">
+          <div class="field"><label>Page</label>
+            <select id="f-page">
+              <option>Homepage</option>
+              <option>Baby led weaning hub</option>
+              <option>SEN Journey</option>
+              <option>Mealtime Development Box</option>
+              <option>Tips & Advice hub</option>
+              <option>Shop by Category</option>
+              <option>Collection — baby cutlery</option>
+              <option>Collection — toddler cutlery</option>
+              <option>Collection — plates & bowls</option>
+              <option>Collection — kits</option>
+              <option>Article page</option>
+              <option>Navigation / header</option>
+              <option>Footer</option>
+              <option>Cart / checkout</option>
+              <option>Account pages</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field"><label>Section / component</label><input id="f-component" type="text" placeholder="e.g. Stage 0 panel, hero CTA, nav dropdown"></div>
+        </div>
+        <div class="field"><label>Exact URL</label><input id="f-url" type="url" placeholder="https://doddl-ltd.myshopify.com/..."></div>
+        <div class="field"><label>Issue title</label><input id="f-title" type="text" placeholder="Short description — e.g. Stage 0 email form not submitting on mobile"></div>
+        <div class="field">
+          <label>Severity</label>
+          <div class="pill-group" id="severity-group">
+            <span class="pill pill-critical" onclick="selectPill(this,'severity')">🔴 Critical</span>
+            <span class="pill pill-major" onclick="selectPill(this,'severity')">🟠 Major</span>
+            <span class="pill pill-minor" onclick="selectPill(this,'severity')">🔵 Minor</span>
+            <span class="pill pill-enhancement" onclick="selectPill(this,'severity')">🟢 Enhancement</span>
+          </div>
+        </div>
+        <div class="field"><label>Steps to reproduce</label><textarea id="f-steps" placeholder="1. Go to...&#10;2. Click...&#10;3. Observe..."></textarea></div>
+        <div class="field"><label>Expected behaviour</label><textarea id="f-expected" placeholder="What should happen"></textarea></div>
+        <div class="field"><label>Actual behaviour</label><textarea id="f-actual" placeholder="What actually happens"></textarea></div>
+        <div class="field"><label>Console errors (if any)</label><textarea id="f-console" placeholder="Paste any browser console errors here" style="font-family:monospace;font-size:12px;min-height:50px"></textarea></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Screenshots</h2></div>
+      <div class="card-body">
+        <div class="upload-area" id="upload-area">
+          <input type="file" id="f-screenshots" accept="image/*" multiple onchange="handleScreenshots(this)">
+          <div class="upload-icon">📎</div>
+          <div class="upload-text">Click to attach screenshots</div>
+          <div class="upload-note">PNG, JPG, GIF — up to 5 images. Stored locally in this browser.</div>
+        </div>
+        <div class="preview-grid" id="preview-grid"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Status</h2></div>
+      <div class="card-body">
+        <div class="field">
+          <label>Page status</label>
+          <div class="pill-group" id="status-group">
+            <span class="pill pill-pass" onclick="selectPill(this,'status')">✓ Ready to launch</span>
+            <span class="pill pill-partial" onclick="selectPill(this,'status')">⚠ Needs fixes</span>
+            <span class="pill pill-fail" onclick="selectPill(this,'status')">✗ Blocked</span>
+          </div>
+        </div>
+        <div class="field"><label>Additional notes</label><textarea id="f-notes" placeholder="Anything else the developer should know..."></textarea></div>
+      </div>
+    </div>
+
+    <button class="submit-btn" onclick="submitIssue()">Save issue</button>
+  </div>
+</div>
+
+<!-- PAGE CHECKLIST -->
+<div id="view-checklist" class="view">
+  <div class="container">
+    <div class="card">
+      <div class="card-head"><h2>Checklist — select page then mark each item</h2></div>
+      <div class="card-body">
+        <div class="row2">
+          <div class="field"><label>Page being tested</label>
+            <select id="cl-page" onchange="loadChecklist()">
+              <option>Homepage</option>
+              <option>Baby led weaning hub</option>
+              <option>SEN Journey</option>
+              <option>Mealtime Development Box</option>
+              <option>Tips & Advice hub</option>
+              <option>Collection — baby cutlery</option>
+              <option>Collection — toddler cutlery</option>
+              <option>Collection — plates & bowls</option>
+              <option>Navigation / header</option>
+              <option>Article page</option>
+            </select>
+          </div>
+          <div class="field"><label>Market</label>
+            <select id="cl-market">
+              <option>UK — doddl.com</option>
+              <option>US — doddl.com/en-us</option>
+              <option>DE — doddlbaby.de</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card" id="cl-card">
+      <div class="card-head"><h2>Checklist items</h2></div>
+      <div class="card-body" id="cl-body"></div>
+    </div>
+    <button class="submit-btn" onclick="saveChecklist()">Save checklist</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORE_KEY = 'doddl_uat_issues';
+const CL_KEY = 'doddl_uat_checklists';
+let screenshots = [];
+let currentFilter = 'all';
+
+const CHECKS = [
+  'H1 copy correct and renders as expected',
+  'All CTAs link to correct destination',
+  'No broken or missing images',
+  'Product images show full product (not cropped)',
+  'Mobile layout correct at 375px',
+  'Navigation — all dropdown links work',
+  'Add to cart works and opens drawer',
+  'Email capture form submits correctly',
+  'Filter tabs / stage tabs work correctly',
+  'Trust bar copy correct',
+  'Currency correct for market (£ / $ / €)',
+  'No console errors in browser dev tools',
+  'Schema valid (Google Rich Results test)',
+  'No garbled characters (â€™ etc.)',
+  'Footer links all resolve correctly',
+  'Page loads without visible layout shift',
+  'Breadcrumb displays correctly',
+  'Related articles / product cards render',
+  'Responsive — no horizontal overflow on mobile',
+  'Images load promptly (no broken src)',
+];
+
+function getIssues() { try { return JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); } catch(e) { return []; } }
+function saveIssues(issues) { localStorage.setItem(STORE_KEY, JSON.stringify(issues)); }
+function getChecklists() { try { return JSON.parse(localStorage.getItem(CL_KEY) || '{}'); } catch(e) { return {}; } }
+function saveChecklists(cl) { localStorage.setItem(CL_KEY, JSON.stringify(cl)); }
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('view-' + tab).classList.add('active');
+  if (tab === 'log') renderLog();
+  if (tab === 'checklist') loadChecklist();
+}
+
+function selectPill(el, group) {
+  document.querySelectorAll('#' + group + '-group .pill').forEach(p => p.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function handleScreenshots(input) {
+  const files = Array.from(input.files);
+  const grid = document.getElementById('preview-grid');
+  files.forEach(file => {
+    if (screenshots.length >= 5) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      screenshots.push(e.target.result);
+      const img = document.createElement('img');
+      img.className = 'preview-img';
+      img.src = e.target.result;
+      img.title = 'Click to remove';
+      const idx = screenshots.length - 1;
+      img.onclick = () => { screenshots.splice(idx, 1); img.remove(); };
+      grid.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function getSeverity() {
+  const sel = document.querySelector('#severity-group .pill.sel');
+  if (!sel) return '';
+  return sel.textContent.replace(/[🔴🟠🔵🟢]\s*/g, '').trim();
+}
+
+function getStatus() {
+  const sel = document.querySelector('#status-group .pill.sel');
+  if (!sel) return '';
+  return sel.textContent.trim();
+}
+
+function submitIssue() {
+  const title = document.getElementById('f-title').value.trim();
+  if (!title) { toast('Please add an issue title'); return; }
+  const issues = getIssues();
+  const issue = {
+    id: Date.now(),
+    name: document.getElementById('f-name').value.trim(),
+    date: document.getElementById('f-date').value,
+    market: document.getElementById('f-market').value,
+    device: document.getElementById('f-device').value,
+    viewport: document.getElementById('f-viewport').value,
+    theme: document.getElementById('f-theme').value,
+    page: document.getElementById('f-page').value,
+    component: document.getElementById('f-component').value.trim(),
+    url: document.getElementById('f-url').value.trim(),
+    title: title,
+    severity: getSeverity(),
+    steps: document.getElementById('f-steps').value.trim(),
+    expected: document.getElementById('f-expected').value.trim(),
+    actual: document.getElementById('f-actual').value.trim(),
+    console: document.getElementById('f-console').value.trim(),
+    notes: document.getElementById('f-notes').value.trim(),
+    status: getStatus(),
+    screenshots: [...screenshots],
+    open: false
+  };
+  issues.unshift(issue);
+  saveIssues(issues);
+  toast('Issue saved ✓');
+  resetForm();
+  setTimeout(() => { switchTab('log'); document.querySelector('.tab').click(); }, 800);
+}
+
+function resetForm() {
+  ['f-title','f-component','f-url','f-steps','f-expected','f-actual','f-console','f-notes'].forEach(id => document.getElementById(id).value = '');
+  document.querySelectorAll('.pill.sel').forEach(p => p.classList.remove('sel'));
+  screenshots = [];
+  document.getElementById('preview-grid').innerHTML = '';
+  document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+}
+
+function severityBadge(sev) {
+  const map = { 'Critical': 'critical', 'Major': 'major', 'Minor': 'minor', 'Enhancement': 'enhancement' };
+  const cls = map[sev] || 'minor';
+  return `<span class="badge badge-${cls}">${sev || 'Unset'}</span>`;
+}
+
+function renderLog(filter) {
+  filter = filter || currentFilter;
+  const issues = getIssues();
+  const filtered = filter === 'all' ? issues : issues.filter(i => i.severity === filter);
+  
+  const counts = { Critical: 0, Major: 0, Minor: 0, Enhancement: 0 };
+  issues.forEach(i => { if (counts[i.severity] !== undefined) counts[i.severity]++; });
+  
+  document.getElementById('summary').innerHTML = `
+    <div class="sum-card"><div class="sum-num">${issues.length}</div><div class="sum-lbl">Total issues</div></div>
+    <div class="sum-card" style="border-top:3px solid var(--red-bd)"><div class="sum-num" style="color:var(--red)">${counts.Critical}</div><div class="sum-lbl">Critical</div></div>
+    <div class="sum-card" style="border-top:3px solid var(--amber-bd)"><div class="sum-num" style="color:var(--amber)">${counts.Major}</div><div class="sum-lbl">Major</div></div>
+    <div class="sum-card" style="border-top:3px solid var(--blue-bd)"><div class="sum-num" style="color:var(--blue)">${counts.Minor}</div><div class="sum-lbl">Minor</div></div>
+  `;
+  
+  document.getElementById('log-count').textContent = filter === 'all' ? `All issues (${issues.length})` : `${filter} (${filtered.length})`;
+
+  const list = document.getElementById('issues-list');
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">📋</div><p>No ${filter === 'all' ? '' : filter.toLowerCase() + ' '}issues logged yet.</p></div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(issue => `
+    <div class="issue-card" id="issue-${issue.id}">
+      <div class="issue-head" onclick="toggleIssue(${issue.id})">
+        <div style="flex:1">
+          <div class="issue-title">${issue.title}</div>
+          <div class="issue-meta">
+            ${severityBadge(issue.severity)}
+            <span>${issue.page}</span>
+            ${issue.component ? `<span>· ${issue.component}</span>` : ''}
+            <span>· ${issue.device}</span>
+            <span>· ${issue.market}</span>
+            ${issue.name ? `<span>· ${issue.name}</span>` : ''}
+            ${issue.date ? `<span>· ${issue.date}</span>` : ''}
+          </div>
+        </div>
+        <div class="issue-actions">
+          <button class="issue-del" onclick="event.stopPropagation(); deleteIssue(${issue.id})">Delete</button>
+        </div>
+      </div>
+      <div class="issue-body ${issue.open ? 'open' : ''}" id="body-${issue.id}">
+        <div class="issue-detail">
+          ${issue.url ? `<div class="detail-item"><div class="detail-label">URL</div><div class="detail-val" style="word-break:break-all;font-size:11px">${issue.url}</div></div>` : ''}
+          ${issue.status ? `<div class="detail-item"><div class="detail-label">Page status</div><div class="detail-val">${issue.status}</div></div>` : ''}
+          ${issue.viewport ? `<div class="detail-item"><div class="detail-label">Viewport</div><div class="detail-val">${issue.viewport}</div></div>` : ''}
+          ${issue.theme ? `<div class="detail-item"><div class="detail-label">Theme</div><div class="detail-val">${issue.theme}</div></div>` : ''}
+        </div>
+        ${issue.steps ? `<div class="detail-full"><div class="detail-label">Steps to reproduce</div><div style="font-size:13px;color:var(--text);white-space:pre-line;margin-top:3px">${issue.steps}</div></div>` : ''}
+        ${issue.expected ? `<div class="detail-full"><div class="detail-label">Expected</div><div style="font-size:13px;color:var(--text);margin-top:3px">${issue.expected}</div></div>` : ''}
+        ${issue.actual ? `<div class="detail-full"><div class="detail-label">Actual</div><div style="font-size:13px;color:var(--text);margin-top:3px">${issue.actual}</div></div>` : ''}
+        ${issue.console ? `<div class="detail-full"><div class="detail-label">Console errors</div><pre style="font-size:11px;background:var(--grey-bg);padding:8px;border-radius:var(--radius-sm);margin-top:3px;overflow-x:auto;white-space:pre-wrap">${issue.console}</pre></div>` : ''}
+        ${issue.notes ? `<div class="detail-full"><div class="detail-label">Notes</div><div style="font-size:13px;color:var(--text);margin-top:3px">${issue.notes}</div></div>` : ''}
+        ${issue.screenshots && issue.screenshots.length > 0 ? `
+          <div class="detail-full">
+            <div class="detail-label">Screenshots (${issue.screenshots.length})</div>
+            <div class="preview-grid" style="margin-top:6px">
+              ${issue.screenshots.map(src => `<img class="preview-img" src="${src}" onclick="window.open(this.src)" style="cursor:zoom-in;width:100px;height:75px">`).join('')}
+            </div>
+          </div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleIssue(id) {
+  const issues = getIssues();
+  const issue = issues.find(i => i.id === id);
+  if (issue) { issue.open = !issue.open; saveIssues(issues); }
+  const body = document.getElementById('body-' + id);
+  if (body) body.classList.toggle('open');
+}
+
+function deleteIssue(id) {
+  if (!confirm('Delete this issue?')) return;
+  const issues = getIssues().filter(i => i.id !== id);
+  saveIssues(issues);
+  renderLog();
+  toast('Issue deleted');
+}
+
+function filterIssues(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLog(filter);
+}
+
+function clearAll() {
+  if (!confirm('Delete ALL issues? This cannot be undone.')) return;
+  localStorage.removeItem(STORE_KEY);
+  renderLog();
+  toast('All issues cleared');
+}
+
+function exportCSV() {
+  const issues = getIssues();
+  if (!issues.length) { toast('No issues to export'); return; }
+  const headers = ['ID','Date','Name','Market','Device','Viewport','Page','Component','URL','Title','Severity','Status','Steps','Expected','Actual','Console','Notes'];
+  const rows = issues.map(i => [
+    i.id, i.date, i.name, i.market, i.device, i.viewport, i.page, i.component,
+    i.url, i.title, i.severity, i.status, i.steps, i.expected, i.actual, i.console, i.notes
+  ].map(v => '"' + String(v || '').replace(/"/g,'""') + '"').join(','));
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'doddl-uat-issues-' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click();
+  toast('CSV downloaded');
+}
+
+function loadChecklist() {
+  const page = document.getElementById('cl-page').value;
+  const saved = getChecklists()[page] || {};
+  const body = document.getElementById('cl-body');
+  body.innerHTML = `<div class="checklist">` + CHECKS.map((check, i) => {
+    const val = saved[i] || '';
+    return `<div class="check-item">
+      <span class="check-label">${check}</span>
+      <div class="check-pills">
+        <span class="check-pill pill-pass ${val==='Pass'?'sel':''}" onclick="markCheck(${i},'Pass',this)">Pass</span>
+        <span class="check-pill pill-partial ${val==='Partial'?'sel':''}" onclick="markCheck(${i},'Partial',this)">Partial</span>
+        <span class="check-pill pill-fail ${val==='Fail'?'sel':''}" onclick="markCheck(${i},'Fail',this)">Fail</span>
+        <span class="check-pill pill-na ${val==='N/A'?'sel':''}" onclick="markCheck(${i},'N/A',this)">N/A</span>
+      </div>
+    </div>`;
+  }).join('') + `</div>`;
+}
+
+function markCheck(idx, val, el) {
+  el.closest('.check-pills').querySelectorAll('.check-pill').forEach(p => p.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function saveChecklist() {
+  const page = document.getElementById('cl-page').value;
+  const result = {};
+  document.querySelectorAll('.check-item').forEach((item, i) => {
+    const sel = item.querySelector('.check-pill.sel');
+    result[i] = sel ? sel.textContent.trim() : '';
+  });
+  const all = getChecklists();
+  all[page] = result;
+  saveChecklists(all);
+  toast('Checklist saved ✓');
+}
+
+// Init
+document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+renderLog();
+loadChecklist();
+</script>
+</body>
+</html>
